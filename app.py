@@ -397,11 +397,9 @@ def main():
     st.set_page_config(layout="wide")
     st.title("SLR Parser")
 
-    uploaded_file = st.file_uploader("Upload Grammar File", type="txt")
-
-    if uploaded_file is not None:
+    grammar_str = st.text_area("Paste Grammar Content Here", height=250)
+    if grammar_str:
         # Read the uploaded file as a string with utf-8 encoding
-        grammar_str = uploaded_file.read().decode('utf-8')
         G = Grammar(grammar_str)
         slr_parser = SLRParser(G)
 
@@ -410,14 +408,12 @@ def main():
         with st.expander("View Grammar Information"):
             # Capture the output of print_info as a string
             info_output = slr_parser.print_info()
-            # Display the captured output
-            st.text(info_output)
 
         tokens = st.text_input("Enter tokens separated by spaces")
         results = slr_parser.LR_parser(tokens)
         slr_parser.print_LR_parser(results)
 
-        generate_automaton = st.checkbox("Generate Automaton")
+        generate_automaton = st.button("Generate Automaton")
 
         if generate_automaton:
             # Display graphviz chart
