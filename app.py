@@ -3,6 +3,10 @@ from graphviz import Digraph
 from slr_parser.grammar import Grammar
 import argparse
 import pandas as pd
+from prettytable import PrettyTable
+
+
+table = PrettyTable()
 
 def first_follow(G):
 
@@ -215,33 +219,27 @@ class SLRParser:
             if width < max_len + 2:
                 width = max_len + 2
 
+        # Initialize the table
+        table = PrettyTable()
+
         # Append the header for the parsing table
-        output.append('\nPARSING TABLE:')
-        output.append(f'+{"-" * width}+{"-" * symbols_width(self.action)}+{"-" * symbols_width(self.goto)}+')
-        output.append(f'|{"":{width}}|{"ACTION":^{symbols_width(self.action)}}|{"GOTO":^{symbols_width(self.goto)}}|')
-        output.append(f'|{"STATE":^{width}}+{("-" * width + "+") * len(self.parse_table_symbols)}')
+        table.field_names = ["STATE"] + self.parse_table_symbols
 
-        # Append the symbols for each column
-        output.append(f'|{"":^{width}}|')
-        for symbol in self.parse_table_symbols:
-            output.append(f'{symbol:^{width - 1}}|')
-
-        output.append('')
-
-        # Append the lines for the parsing table
-        output.append(print_line())
+        # Add rows to the table
         for r in range(len(self.C)):
-            output.append(f'|{r:^{width}}|')
+            row_data = [f"{r}"]
             for c in self.parse_table_symbols:
-                output.append(f'{self.parse_table[r][c]:^{width - 1}}|')
+                row_data.append(self.parse_table[r][c])
+            table.add_row(row_data)
 
-            output.append('')
+        # Set alignment for columns
+        for field in table.field_names:
+            table.align[field] = 'c'
 
-        # Append the closing line for the parsing table
-        output.append(print_line())
-        output.append('')
-
-        return '\n'.join(output)
+        # Print the augmented grammar, FIRST sets, FOLLOW sets, and the parsing table
+        st.text("\n".join(output))
+        st.text("PARSING TABLE:")
+        st.text(table)
 
     def generate_automaton(self):
         automaton = Digraph('automaton', node_attr={'shape': 'record'})
@@ -364,7 +362,7 @@ class SLRParser:
     def print_LR_parser(self, results):
 
         def print_line():
-            print(
+            st.text(
                 f'{"".join(["+" + ("-" * (max_len + 2)) for max_len in max_lens.values()])}+'
             )
 
@@ -381,13 +379,13 @@ class SLRParser:
         }
 
         print_line()
-        print(''.join([
+        st.text(''.join([
             f'| {history[0]:^{max_len}} '
             for history, max_len in zip(results.values(), max_lens.values())
         ]) + '|')
         print_line()
         for i, step in enumerate(results['step'][:-1], 1):
-            print(''.join([
+            st.text(''.join([
                 f'| {history[i]:{just}{max_len}} ' for history, just, max_len
                 in zip(results.values(), justs.values(), max_lens.values())
             ]) + '|')
@@ -396,6 +394,7 @@ class SLRParser:
 
 
 def main():
+    st.set_page_config(layout="wide")
     st.title("SLR Parser")
 
     uploaded_file = st.file_uploader("Upload Grammar File", type="txt")
