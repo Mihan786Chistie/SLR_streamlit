@@ -25,7 +25,6 @@ The grammar should be provided in a text file with the following format:
 - Terminals and non-terminals should be separated by spaces.
 - Use `^` to represent the empty string (epsilon).
 
-
 ## Dependencies
 
 This SLR Parser relies on the following Python libraries:
@@ -40,3 +39,8 @@ To run the SLR Parser application, execute the Python script containing the Stre
 
 ```bash
 streamlit run app.py
+```
+
+## Credit
+
+This project was made by taking reference from: [Vipul97-SLR Parser](https://github.com/Vipul97/slr-parser/tree/master)
